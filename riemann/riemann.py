@@ -9,12 +9,10 @@ def est_pi_rm(n, mode="right"):
     delta_x = 1 / n
     if mode == "right":
         x = 0
+    elif mode == "mid":
+        x = delta_x/2
     elif mode == "left":
         x = delta_x
-    elif mode == "centre":
-        x = delta_x/2
-    else:
-        return "Invalid mode"
 
     while x < 1:
         f_x = math.sqrt(1 - math.pow(x, 2))

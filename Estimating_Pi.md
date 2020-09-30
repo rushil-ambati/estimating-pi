@@ -47,7 +47,7 @@ $$
 $$
 The Binomial series can be given as:
 
-![image-20200925185252538](../../../../Library/Application Support/typora-user-images/image-20200925185252538.png)
+![Binomial Expansion | Maths Teaching](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmathsteaching.files.wordpress.com%2F2008%2F05%2Fbinomial-expansion-formula.jpg&f=1&nofb=1)
 
 Substituting $-x$ into the above expansion, we get the following result:
 $$
@@ -126,6 +126,26 @@ $$
 \pi \approx 3+\sum_{r=1}^{\lfloor{\frac{n}{2}}\rfloor}\left(\frac{4}{(4r-2)(4r-1)(4r)}\right) - \sum_{r=1}^{n-\lfloor{\frac{n}{2}}\rfloor}\left(\frac{4}{(4r)(4r+1)(4r+2)}\right)
 $$
 Again, the larger this value of $n$, the better the approximation of $\pi$ as there are more terms.
+
+
+
+### Riemann Sum
+
+This method is used in order to approximate integrals, and works by taking a finite sum of rectangles at regular intervals along a continuous function.
+
+#### Derivation
+
+In order to use a Riemann sum to approximate $\pi$, we consider a Unit Circle, similar to the setup for the Monte Carlo method above. If we consider the upper right quadrant, we get a sector of this circle from $0\leq x \leq 1$.
+
+![Image for post](https://miro.medium.com/max/1040/1*XhIfGm5vj0rlieg3iSrZpw.png)
+
+Since the equation of this circle is $x^2+y^2=1$, we can rearrange for a form in $f(x)$ as $y=\sqrt{1-x^2}$. Integrating between the bounds $x=0$ and $x=1$ gives the area of this sector.
+
+The area of the unit circle is $\pi$ so this sector will have an area of $\frac{\pi}{4}$.
+
+We construct rectangles underneath the arc as shown below. The more rectangles we use, the better the approximation of the area.
+
+![Image for post](https://miro.medium.com/max/2060/1*ccdjOYNjkup35YhIanV-4Q.png)
 
 
 
@@ -231,6 +251,46 @@ Running this function with `n=10` yields $\pi \approx$`3.1412548236077646`
 
 
 
+### Riemann Sum
+
+There are three types of Riemann Sums.
+
+Right Hand: $A=\frac{b-a}{n}\left[f(x_1)+f(x_2)+f(x_3)+\ldots+f(x_n)\right]$
+
+Left Hand: $A=\frac{b-a}{n}\left[f(x_0)+f(x_1)+f(x_2)+\ldots+f(x_{n-1})\right]$
+
+Central: $A=\frac{b-a}{n}\left[f(x_0.5)+f(x_1.5)+f(x_2.5)+\ldots+f(x_{\frac{n-1}{2}})\right]$
+
+Now I will construct a function, where `n` is the number of rectangles to be used for the sum and the `mode` defines which type of sum is used.
+
+```python
+def est_pi_rm(n, mode="right"):
+    # Riemann Sum
+    pi_est = 0
+
+    delta_x = 1 / n
+    if mode == "right":
+        x = 0
+    elif mode == "left":
+        x = delta_x
+    elif mode == "centre":
+        x = delta_x/2
+
+    while x < 1:
+        f_x = math.sqrt(1 - math.pow(x, 2))
+        pi_est += f_x * delta_x
+        x += delta_x
+    return 4 * pi_est
+```
+
+Running this function with `n=10` yields $\pi \approx$`3.152411433261645`
+
+Since the arc described in the theory is a decreasing curve in this domain, the Right Hand Sum will be an overestimate and the Left Hand Sum an underestimate. We can verify this by plotting the % error by n for each type of sum:
+
+![hands_err_plot_16](riemann/hands_err_plot_16.png)
+
+
+
 ### Monte Carlo Method
 
 In order to emulate the production of uniformly distributed random variables, I will be using Python’s `random` library.
@@ -282,6 +342,8 @@ So this calculates $\pi \approx 4 \times \frac{119}{150}$ = `3.1733333333333333`
 
 In order to investigate the convergence of each of these algorithms, I plotted `n` against `% error from pi`.
 
+For the Riemann Sum, I used the Midpoint Sum because from the plot above, that had the fastest convergence, and this is a comparison of performance.
+
 Below are those plots at three different ranges of `n`, to better analyse what convergence is like in the short, medium and long term.
 
 #### `n: 1 -> 32`
@@ -295,6 +357,8 @@ The Gregory-Leibniz Series also seems to exhibit logarithmic convergence. Nilaka
 The Monte Carlo method is also explainable in that a very small number of random points will cause massively different values since the possible values reachable by any configuration of generated points will be very erratic.
 Hence, we see that it is very disorderly compared to the other two.
 
+The Riemann Sum seems to be converging exponentially as well, at a similar rate to the Nilakantha series.
+
 
 
 #### `n: 1 -> 128`
@@ -304,7 +368,7 @@ Hence, we see that it is very disorderly compared to the other two.
 By this point, both series have converged very close to zero with only a few % error, while the Monte Carlo series is still being very erratic and has an error around 10 to 15%.
 
 The Gregory-Leibniz Series seems to still be continuing with this logarithmic convergence.
-The Nilakantha Series has negligible error at these values of `n`.
+The Nilakantha Series and the Midpoint Riemann Sum both have negligible error at these values of `n`.
 
 
 
@@ -314,7 +378,7 @@ The Nilakantha Series has negligible error at these values of `n`.
 
 It seems at the longer term that by about 500 points, the Monte Carlo method is showing some promise despite diverging slightly even beyond 800 points.
 
-Both series have negligible error by this point.
+Both series and the sum have negligible error by this point.
 
 
 
@@ -337,7 +401,7 @@ We can also see the ‘alternating’ property of both series, as on the rightmo
 
 The paper referenced above with the derivation of the Nilakantha Series also states that:
 
-> ![image-20200925210332356](../../../../Library/Application Support/typora-user-images/image-20200925210332356.png)
+> ![image-20200930115643219](../../../Library/Application Support/typora-user-images/image-20200930115643219.png)
 
 This also confirms my hypothesis that there is a logarithmic convergence across both alternating series.
 
